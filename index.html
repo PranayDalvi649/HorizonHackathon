@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Horizon — Life Financial Timeline</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #000000;
+            --bg2: #09090b;
+            --surface: #09090b;
+            --surface2: #18181b;
+            --surface3: #27272a;
+            --border: #27272a;
+            --border2: #3f3f46;
+            --amber: #e4e4e7;
+            --amber-bright: #ffffff;
+            --amber-dim: rgba(255, 255, 255, 0.1);
+            --teal: #a1a1aa;
+            --teal-dim: rgba(161, 161, 170, 0.1);
+            --green: #4ade80;
+            --green-dim: rgba(74, 222, 128, 0.1);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.1);
+            --purple: #a1a1aa;
+            --pink: #a1a1aa;
+            --text: #fafafa;
+            --text-dim: #a1a1aa;
+            --text-faint: #52525b;
+            --mono: 'IBM Plex Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+        }
+
+        #app-view {
+            display: none;
+            grid-template-rows: 58px 1fr;
+            grid-template-columns: 1fr 330px;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #app-view.active {
+            display: grid;
+        }
+
+        /* ══ AUTH VIEW (from reference) ══════════════ */
+        .auth-view {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top center, rgba(14, 165, 233, 0.15) 0%, var(--bg) 60%);
+            z-index: 1000;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        .auth-view.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .auth-hero {
+            text-align: center;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+
+        .auth-hero h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.3;
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #22d3ee, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-box {
+            background: #0f1218;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 40px;
+            width: 380px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+            z-index: 10;
+            position: relative;
+        }
+
+        .auth-box h2 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .auth-box p.sub {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-field {
+            margin-bottom: 20px;
+        }
+
+        .auth-field label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #1e2532;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrap:focus-within {
+            border-color: #0ea5e9;
+        }
+
+        .input-wrap .icon {
+            position: absolute;
+            left: 14px;
+            color: var(--text-dim);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .input-wrap .icon-right {
+            position: absolute;
+            right: 14px;
+            color: var(--text-dim);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            padding: 14px 14px 14px 40px;
+            outline: none;
+            font-family: var(--sans);
+        }
+
+        .auth-forgot {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .auth-forgot a {
+            color: var(--text-dim);
+            font-size: 12px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .auth-forgot a:hover {
+            color: #fff;
+        }
+
+        .btn-auth {
+            width: 100%;
+            background: linear-gradient(to right, #06b6d4, #0ea5e9);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn-auth:hover {
+            opacity: 0.9;
+        }
+        .btn-auth:active {
+            transform: scale(0.98);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .auth-switch a {
+            color: #0ea5e9;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── dot-grid bg ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, .05) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ══ HEADER ══════════════════════════════════ */
+        header {
+            grid-column: 1/-1;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            z-index: 20;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: auto
+        }
+
+        .logo-hex {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--amber), #52525b);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            color: #000;
+        }
+
+        .logo-text {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: .06em
+        }
+
+        .logo-text em {
+            color: var(--amber);
+            font-style: normal
+        }
+
+        .age-badge {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+            background: var(--surface2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .zoom-group {
+            display: flex;
+            gap: 3px;
+            background: var(--surface2);
+            padding: 4px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+        }
+
+        .zoom-btn {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-dim);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px 13px;
+            border-radius: 6px;
+            transition: all .15s;
+            letter-spacing: .06em;
+        }
+
+        .zoom-btn:hover:not(.active) {
+            background: var(--surface3);
+            color: var(--text)
+        }
+
+        .zoom-btn.active {
+            background: var(--amber);
+            color: #000;
+            font-weight: 700
+        }
+
+        .add-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: var(--sans);
+            font-size: 13px;
+            font-weight: 700;
+            color: #000;
+            background: var(--amber);
+            border: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 9px;
+            transition: all .15s;
+            letter-spacing: .02em;
+            white-space: nowrap;
+        }
+
+        .add-btn:hover {
+            background: var(--amber-bright);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, .35)
+        }
+
+        /* ══ MAIN ════════════════════════════════════ */
+        main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            background: var(--bg);
+        }
+
+        /* ── Timeline ── */
+        .tl-wrap {
+            height: 170px;
+            background: linear-gradient(to top, var(--surface), var(--bg2));
+            border-top: 1px solid var(--border);
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+            position: relative;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .tl-wrap::-webkit-scrollbar {
+            height: 3px
+        }
+
+        .tl-wrap::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px
+        }
+
+        #tl-svg {
+            display: block
+        }
+
+        /* ── Chart ── */
+        .chart-wrap {
+            flex: 1;
+            position: relative;
+            padding: 12px 16px 12px 12px;
+            min-height: 0;
+            background: var(--bg);
+        }
+
+        #chart {
+            display: block
+        }
+
+        .chart-tooltip {
+            position: absolute;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 9px;
+            padding: 8px 13px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text);
+            pointer-events: none;
+            display: none;
+            z-index: 15;
+            white-space: nowrap;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .45);
+            line-height: 1.7;
+        }
+
+        /* ══ SIDEBAR ═════════════════════════════════ */
+        aside {
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            z-index: 1;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        aside::-webkit-scrollbar {
+            width: 3px
+        }
+
+        aside::-webkit-scrollbar-thumb {
+            background: var(--border)
+        }
+
+        .sb-section {
+            padding: 18px 18px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .sec-title {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: .14em;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        /* summary cards */
+        .sum-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin-bottom: 0
+        }
+
+        .sum-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .sum-val {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--teal)
+        }
+
+        .sum-lbl {
+            font-size: 9px;
+            color: var(--text-faint);
+            margin-top: 4px;
+            letter-spacing: .06em
+        }
+
+        /* controls */
+        .ctrl {
+            margin-bottom: 14px
+        }
+
+        .ctrl-lbl {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 7px;
+        }
+
+        .ctrl-val {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--amber);
+            font-weight: 500
+        }
+
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 4px;
+            background: linear-gradient(to right, var(--amber) var(--percent, 50%), var(--border) var(--percent, 50%));
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--amber-bright);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 255, 255, .2);
+            transition: transform .15s, box-shadow .15s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            box-shadow: 0 0 14px rgba(255, 255, 255, .4);
+        }
+
+        input[type=range]:active::-webkit-slider-thumb {
+            transform: scale(1.15);
+        }
+
+        .num-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 7px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .num-input:focus {
+            border-color: var(--amber)
+        }
+
+        /* toggle */
+        .tog-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px
+        }
+
+        .tog-lbl {
+            font-size: 12px;
+            color: var(--text-dim)
+        }
+
+        .toggle {
+            position: relative;
+            width: 38px;
+            height: 21px
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0
+        }
+
+        .tog-sl {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 21px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .tog-sl::before {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            left: 3px;
+            top: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform .2s;
+        }
+
+        .toggle input:checked+.tog-sl {
+            background: var(--amber)
+        }
+
+        .toggle input:checked+.tog-sl::before {
+            transform: translateX(17px)
+        }
+
+        /* milestone cards in sidebar */
+        .m-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px
+        }
+
+        .m-card {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all .15s;
+            position: relative;
+            animation: fadeUp .2s ease-out;
+        }
+
+        .m-card:hover {
+            border-color: var(--border2)
+        }
+
+        .m-card.selected {
+            border-color: var(--amber);
+            background: var(--amber-dim)
+        }
+
+        .m-icon {
+            width: 33px;
+            height: 33px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .m-info {
+            flex: 1;
+            min-width: 0
+        }
+
+        .m-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .m-meta {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text-faint);
+            margin-top: 2px
+        }
+
+        .m-warn {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--amber);
+            margin-top: 2px
+        }
+
+        .m-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+
+        .m-dot.ok {
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green)
+        }
+
+        .m-dot.warn {
+            background: var(--amber);
+            box-shadow: 0 0 6px var(--amber)
+        }
+
+        .m-dot.bad {
+            background: var(--red);
+            box-shadow: 0 0 6px var(--red)
+        }
+
+        .edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-faint);
+            font-size: 13px;
+            padding: 4px;
+            border-radius: 5px;
+            transition: all .12s;
+            flex-shrink: 0;
+        }
+
+        .edit-btn:hover {
+            color: var(--amber);
+            background: var(--amber-dim)
+        }
+
+        /* ══ MODAL ═══════════════════════════════════ */
+        .modal-ov {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .72);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+
+        .modal-ov.open {
+            opacity: 1;
+            pointer-events: all
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 18px;
+            width: 390px;
+            padding: 28px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, .6);
+            transform: translateY(24px) scale(.97);
+            transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .modal-ov.open .modal {
+            transform: translateY(0) scale(1)
+        }
+
+        .modal-head {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-field {
+            margin-bottom: 15px
+        }
+
+        .modal-lbl {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+            letter-spacing: .06em;
+            text-transform: uppercase
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 10px 13px;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .modal-input:focus {
+            border-color: var(--amber)
+        }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px
+        }
+
+        .cat-opt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 8px;
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all .15s;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .cat-opt:hover {
+            border-color: var(--border2)
+        }
+
+        .cat-opt.sel {
+            border-color: var(--amber);
+            background: var(--amber-dim);
+            color: var(--text)
+        }
+
+        .cat-opt .ci {
+            font-size: 20px;
+            line-height: 1
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 22px
+        }
+
+        .btn-pri {
+            flex: 1;
+            background: var(--amber);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 9px;
+            font-family: var(--sans);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .btn-pri:hover {
+            background: var(--amber-bright);
+            transform: translateY(-1px)
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-family: var(--sans);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--text-dim);
+            color: var(--text)
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--red);
+            border: 1px solid rgba(239, 68, 68, .3);
+            padding: 12px 14px;
+            border-radius: 9px;
+            font-family: var(--sans);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .btn-danger:hover {
+            background: var(--red-dim)
+        }
+
+        /* ── progress bar ── */
+        .progress-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 5px
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(to right, var(--teal), var(--amber));
+            transition: width .4s ease
+        }
+
+        /* ── animations ── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes pulseRing {
+            0% {
+                r: 12;
+                opacity: .6
+            }
+
+            100% {
+                r: 22;
+                opacity: 0
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .3
+            }
+        }
+
+        .drag-age-label {
+            position: absolute;
+            background: var(--amber);
+            color: #000;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
+            pointer-events: none;
+            top: 6px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="auth-view" class="auth-view">
+        <div class="auth-hero">
+            <h1>Build with Confidence<br><span class="text-gradient">Deploy with Ease</span></h1>
+        </div>
+
+        <!-- Login Box -->
+        <div class="auth-box" id="login-box">
+            <h2>Welcome Back</h2>
+            <p class="sub">Login to your account to continue</p>
+
+            <div class="auth-field">
+                <label>Username</label>
+                <div class="input-wrap">
+                    <span class="icon">✉️</span>
+                    <input type="email" placeholder="Enter your email" value="user@horizon.app">
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <span class="icon">🔒</span>
+                    <input type="password" placeholder="Enter your password" value="password123">
+                    <span class="icon-right" onclick="this.previousElementSibling.type = this.previousElementSibling.type === 'password' ? 'text' : 'password'">👁️</span>
+                </div>
+            </div>
+
+            <div class="auth-forgot">
+                <a href="#">Forgot password?</a>
+            </div>
+
+            <button class="btn-auth" id="login-btn">Login</button>
+
+            <p class="auth-switch">Don't have an account? <a href="#" id="go-signup">Sign up</a></p>
+        </div>
+
+        <!-- Signup Box -->
+        <div class="auth-box" id="signup-box" style="display:none">
+            <h2>Create Account</h2>
+            <p class="sub">Sign up to get started</p>
+
+            <div class="auth-field">
+                <label>Username</label>
+                <div class="input-wrap">
+                    <span class="icon">👤</span>
+                    <input type="text" placeholder="Enter your username">
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label>Email Address</label>
+                <div class="input-wrap">
+                    <span class="icon">✉️</span>
+                    <input type="email" placeholder="Enter your email">
+                </div>
+            </div>
+
+            <div class="auth-field">
+                <label>Password</label>
+                <div class="input-wrap">
+                    <span class="icon">🔒</span>
+                    <input type="password" placeholder="Create a password">
+                    <span class="icon-right" onclick="this.previousElementSibling.type = this.previousElementSibling.type === 'password' ? 'text' : 'password'">👁️</span>
+                </div>
+            </div>
+
+            <button class="btn-auth" id="signup-btn" style="margin-top: 10px;">Sign Up</button>
+
+            <p class="auth-switch">Already have an account? <a href="#" id="go-login">Login</a></p>
+        </div>
+    </div>
+
+    <div id="app-view">
+
+    <!-- ═══ HEADER ═══════════════════════════════════ -->
+    <header>
+        <div class="logo">
+            <div class="logo-hex">◆</div>
+            <div class="logo-text">PROJECT <em>HORIZON</em></div>
+        </div>
+        <span class="age-badge" id="age-badge">Age 28 · ₹5.00L net worth</span>
+        <div class="zoom-group">
+            <button class="zoom-btn" data-z="5yr">5 YR</button>
+            <button class="zoom-btn" data-z="10yr">10 YR</button>
+            <button class="zoom-btn active" data-z="full">LIFE</button>
+        </div>
+        <button class="add-btn" id="add-btn">＋ Milestone</button>
+    </header>
+
+    <!-- ═══ MAIN ══════════════════════════════════════ -->
+    <main>
+        <div class="chart-wrap" id="chart-wrap">
+            <canvas id="chart"></canvas>
+            <div class="chart-tooltip" id="tooltip"></div>
+        </div>
+        <div class="tl-wrap" id="tl-wrap">
+            <svg id="tl-svg"></svg>
+            <div class="drag-age-label" id="drag-lbl"></div>
+        </div>
+    </main>
+
+    <!-- ═══ SIDEBAR ═══════════════════════════════════ -->
+    <aside>
+        <!-- Summary -->
+        <div class="sb-section">
+            <div class="sec-title">Projection Summary</div>
+            <div class="sum-grid">
+                <div class="sum-card">
+                    <div class="sum-val" id="s-at60">₹—</div>
+                    <div class="sum-lbl">AT AGE 60</div>
+                </div>
+                <div class="sum-card">
+                    <div class="sum-val" id="s-at80">₹—</div>
+                    <div class="sum-lbl">AT AGE 80</div>
+                </div>
+                <div class="sum-card">
+                    <div class="sum-val" id="s-rate" style="color:var(--green)">—%</div>
+                    <div class="sum-lbl">RETURN</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What-If -->
+        <div class="sb-section">
+            <div class="sec-title">What-If Scenario</div>
+
+            <div class="ctrl">
+                <div class="ctrl-lbl">Monthly Savings<span class="ctrl-val" id="d-monthly">₹25,000</span></div>
+                <input type="range" id="r-monthly" min="1000" max="300000" step="1000" value="25000">
+            </div>
+
+            <div class="ctrl">
+                <div class="ctrl-lbl">Annual Return Rate<span class="ctrl-val" id="d-rate">12%</span></div>
+                <input type="range" id="r-rate" min="3" max="30" step=".5" value="12">
+            </div>
+
+            <div class="ctrl">
+                <div class="ctrl-lbl">Net Worth (₹)</div>
+                <input type="number" class="num-input" id="i-worth" value="500000" min="0">
+            </div>
+
+            <div class="ctrl">
+                <div class="ctrl-lbl">Current Age</div>
+                <input type="number" class="num-input" id="i-age" value="28" min="16" max="65">
+            </div>
+
+            <div class="tog-row">
+                <span class="tog-lbl">Inflation Adjust (6% p.a.)</span>
+                <label class="toggle">
+                    <input type="checkbox" id="t-inflation">
+                    <span class="tog-sl"></span>
+                </label>
+            </div>
+
+            <div class="tog-row">
+                <span class="tog-lbl">Show Shortfall Gaps</span>
+                <label class="toggle">
+                    <input type="checkbox" id="t-gaps" checked>
+                    <span class="tog-sl"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Milestones -->
+        <div class="sb-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+            <div class="sec-title">Life Milestones</div>
+            <div class="m-list" id="m-list"
+                style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent"></div>
+        </div>
+    </aside>
+
+    <!-- ═══ MODAL ═════════════════════════════════════ -->
+    <div class="modal-ov" id="modal">
+        <div class="modal">
+            <div class="modal-head" id="modal-head">Add Milestone</div>
+
+            <div class="modal-field">
+                <div class="modal-lbl">Milestone Name</div>
+                <input class="modal-input" id="m-name" type="text" placeholder="e.g. Buy apartment in Pune">
+            </div>
+            <div class="modal-field">
+                <div class="modal-lbl">Target Age</div>
+                <input class="modal-input" id="m-age" type="number" placeholder="32" min="18" max="80">
+            </div>
+            <div class="modal-field">
+                <div class="modal-lbl">Estimated Cost (₹)</div>
+                <input class="modal-input" id="m-cost" type="number" placeholder="8000000">
+                <div style="font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-top:5px"
+                    id="cost-preview"></div>
+            </div>
+            <div class="modal-field">
+                <div class="modal-lbl">Category</div>
+                <div class="cat-grid" id="cat-grid"></div>
+            </div>
+
+            <!-- Shortfall indicator in modal -->
+            <div id="modal-sf"
+                style="display:none;margin-top:14px;padding:10px 13px;border-radius:8px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);font-family:var(--mono);font-size:11px;color:var(--amber)">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-ghost" id="m-cancel">Cancel</button>
+                <button class="btn-danger" id="m-delete" style="display:none">Delete</button>
+                <button class="btn-pri" id="m-save">Save Milestone</button>
+            </div>
+        </div>
+    </div>
+    
+    </div><!-- End #app-view -->
+
+    <script>
+        // ════════════════════════════════════════════════════
+        // CONSTANTS
+        // ════════════════════════════════════════════════════
+        const CATS = {
+            property: { icon: '🏠', color: '#f59e0b', label: 'Property' },
+            business: { icon: '💼', color: '#0ea5e9', label: 'Business' },
+            education: { icon: '📚', color: '#10b981', label: 'Education' },
+            travel: { icon: '✈️', color: '#8b5cf6', label: 'Travel' },
+            family: { icon: '👨‍👩‍👧', color: '#ec4899', label: 'Family' },
+            other: { icon: '⭐', color: '#64748b', label: 'Other' },
+        };
+
+        // ════════════════════════════════════════════════════
+        // STATE
+        // ════════════════════════════════════════════════════
+        const S = {
+            age: 28,
+            monthly: 25000,
+            rate: 12,
+            worth: 500000,
+            inflation: false,
+            showGaps: true,
+            zoom: 'full',
+            milestones: [
+                { id: 1, age: 32, name: 'Buy Apartment · Pune', cost: 8000000, cat: 'property' },
+                { id: 2, age: 35, name: 'Start My Studio', cost: 1500000, cat: 'business' },
+                { id: 3, age: 45, name: "Kids' College Fund", cost: 3000000, cat: 'education' },
+                { id: 4, age: 55, name: 'World Tour', cost: 2000000, cat: 'travel' },
+            ],
+            nid: 5,
+            sel: null,
+            drag: null,
+            editId: null,
+            editCat: 'other',
+            proj: null,
+        };
+
+        // ════════════════════════════════════════════════════
+        // FORMATTERS
+        // ════════════════════════════════════════════════════
+        function fmt(v) {
+            if (v >= 10000000) return '₹' + (v / 10000000).toFixed(2) + 'Cr';
+            if (v >= 100000) return '₹' + (v / 100000).toFixed(1) + 'L';
+            if (v >= 1000) return '₹' + (v / 1000).toFixed(0) + 'K';
+            return '₹' + v.toFixed(0);
+        }
+
+        // ════════════════════════════════════════════════════
+        // PROJECTION ENGINE
+        // ════════════════════════════════════════════════════
+        function compute() {
+            const { age, monthly, rate, worth, inflation, milestones } = S;
+            const mr = rate / 12 / 100;
+            const ir = inflation ? 6 / 12 / 100 : 0;
+
+            const evts = milestones
+                .filter(m => m.age > age)
+                .map(m => ({ month: Math.round((m.age - age) * 12), cost: m.cost, id: m.id }))
+                .sort((a, b) => a.month - b.month);
+
+            let bal = worth;
+            const pts = [{ age, bal }];
+            const mInfo = {};
+            let contrib = monthly;
+
+            const totalM = (80 - age) * 12;
+            for (let mo = 1; mo <= totalM; mo++) {
+                if (ir && mo % 12 === 0) contrib *= (1 + ir * 12);
+                bal = bal * (1 + mr) + contrib;
+                for (const e of evts) {
+                    if (e.month === mo) {
+                        const before = bal;
+                        bal = Math.max(0, bal - e.cost);
+                        mInfo[e.id] = { before, after: bal, shortfall: Math.max(0, e.cost - before) };
+                    }
+                }
+                if (mo % 3 === 0) pts.push({ age: age + mo / 12, bal: Math.max(0, bal) });
+            }
+            return { pts, mInfo };
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW BOUNDS
+        // ════════════════════════════════════════════════════
+        function bounds() {
+            const { zoom, age } = S;
+            if (zoom === '5yr') return { s: age - 0.5, e: age + 6 };
+            if (zoom === '10yr') return { s: age - 0.5, e: age + 11 };
+            return { s: 20, e: 80 };
+        }
+
+        // ════════════════════════════════════════════════════
+        // TIMELINE (SVG)
+        // ════════════════════════════════════════════════════
+        const TL_H = 170;
+        const AX_Y = 108;  // axis line Y
+        const LBL_Y_UP = 42;
+        const LBL_Y_DN = 130;
+        const AGE_Y = 150;
+
+        function renderTL() {
+            const svg = document.getElementById('tl-svg');
+            const wrap = document.getElementById('tl-wrap');
+            const { s, e } = bounds();
+
+            const ppy = S.zoom === '5yr' ? 80 : S.zoom === '10yr' ? 54 : 46;
+            const totalW = Math.max(wrap.clientWidth, (e - s) * ppy + 80);
+            svg.setAttribute('width', totalW);
+            svg.setAttribute('height', TL_H);
+
+            const toX = a => ((a - s) / (e - s)) * (totalW - 80) + 40;
+
+            const { pts, mInfo } = S.proj || compute();
+
+            let h = '<defs>';
+            h += `<filter id="glow2"><feGaussianBlur stdDeviation="3" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+            h += `<filter id="glow1"><feGaussianBlur stdDeviation="1.5" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+            h += `<linearGradient id="ax-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#1e2d52" stop-opacity="0"/>
+        <stop offset="20%" stop-color="#1e2d52"/>
+        <stop offset="80%" stop-color="#1e2d52"/>
+        <stop offset="100%" stop-color="#1e2d52" stop-opacity="0"/>
+      </linearGradient>`;
+            h += `</defs>`;
+
+            // Axis line
+            h += `<line x1="${toX(s)}" y1="${AX_Y}" x2="${toX(e)}" y2="${AX_Y}" stroke="url(#ax-grad)" stroke-width="2"/>`;
+
+            // Age ticks
+            for (let a = Math.ceil(s); a <= Math.floor(e); a++) {
+                const x = toX(a);
+                if (x < 0 || x > totalW) continue;
+                const major = a % 5 === 0;
+                if (major) {
+                    h += `<line x1="${x}" y1="${AX_Y - 7}" x2="${x}" y2="${AX_Y + 7}" stroke="#263661" stroke-width="1.5"/>`;
+                    h += `<text x="${x}" y="${AGE_Y}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="#384d72">${a}</text>`;
+                } else if (ppy >= 40) {
+                    h += `<line x1="${x}" y1="${AX_Y - 3}" x2="${x}" y2="${AX_Y + 3}" stroke="#1e2d52" stroke-width="1"/>`;
+                }
+            }
+
+            // Current age "NOW" marker
+            const cx = toX(S.age);
+            if (cx >= 0 && cx <= totalW) {
+                h += `<circle cx="${cx}" cy="${AX_Y}" r="24" fill="rgba(245,158,11,.05)">
+          <animate attributeName="r" values="18;26;18" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".4;0;.4" dur="2.5s" repeatCount="indefinite"/>
+        </circle>`;
+                h += `<circle cx="${cx}" cy="${AX_Y}" r="6" fill="rgba(245,158,11,.2)"/>`;
+                h += `<circle cx="${cx}" cy="${AX_Y}" r="3.5" fill="#f59e0b" filter="url(#glow2)"/>`;
+                h += `<text x="${cx}" y="${AX_Y - 16}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="#f59e0b" letter-spacing=".08em">NOW</text>`;
+            }
+
+            // Milestones
+            S.milestones.forEach((m, i) => {
+                if (m.age < s || m.age > e) return;
+                const x = toX(m.age);
+                const cat = CATS[m.cat] || CATS.other;
+                const info = mInfo[m.id];
+                const sf = info && info.shortfall > 0;
+                const isSel = S.sel === m.id;
+                const above = i % 2 === 0;
+
+                const lblY = above ? LBL_Y_UP : LBL_Y_DN;
+                const connY2 = above ? AX_Y - 13 : AX_Y + 13;
+
+                // Connector
+                h += `<line x1="${x}" y1="${lblY + (above ? 8 : -8)}" x2="${x}" y2="${connY2}"
+          stroke="${cat.color}" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>`;
+
+                // Label card
+                const nm = m.name.length > 18 ? m.name.slice(0, 17) + '…' : m.name;
+                const cardW = Math.max(nm.length * 6.8 + 24, 120);
+                const cardH = 30;
+                const cardX = x - cardW / 2;
+                const cardY = above ? lblY - cardH - 2 : lblY - 4;
+
+                h += `<rect x="${cardX}" y="${cardY}" width="${cardW}" height="${cardH}" rx="7"
+          fill="${isSel ? cat.color : '#111836'}"
+          stroke="${sf ? '#f59e0b' : cat.color}"
+          stroke-width="${isSel ? 0 : 1}"
+          opacity="${isSel ? .95 : .85}"
+          class="m-lbl-bg" data-id="${m.id}"
+          style="cursor:pointer;filter:drop-shadow(0 3px 8px ${cat.color}33)"/>`;
+
+                h += `<text x="${x}" y="${cardY + 12}" text-anchor="middle"
+          font-family="Syne,sans-serif" font-size="10" font-weight="700"
+          fill="${isSel ? '#000' : '#dde3ef'}"
+          class="m-lbl-txt" data-id="${m.id}"
+          style="pointer-events:none">${nm}</text>`;
+
+                h += `<text x="${x}" y="${cardY + 24}" text-anchor="middle"
+          font-family="IBM Plex Mono,monospace" font-size="9"
+          fill="${isSel ? 'rgba(0,0,0,.6)' : cat.color}"
+          style="pointer-events:none">${fmt(m.cost)} · ${m.age}y</text>`;
+
+                // Node circle
+                h += `<circle cx="${x}" cy="${AX_Y}" r="13"
+          fill="${cat.color}18"
+          stroke="${isSel ? cat.color : cat.color + '88'}"
+          stroke-width="${isSel ? 2.5 : 1.8}"
+          filter="url(#glow1)"
+          class="m-node" data-id="${m.id}"
+          style="cursor:grab"/>`;
+
+                // Emoji in node (use dominant-baseline)
+                h += `<text x="${x}" y="${AX_Y + 1}" text-anchor="middle" dominant-baseline="middle"
+          font-size="13" style="pointer-events:none;user-select:none">${cat.icon}</text>`;
+
+                // Status dot
+                if (info) {
+                    const dotCol = sf ? '#f59e0b' : '#10b981';
+                    h += `<circle cx="${x + 10}" cy="${AX_Y - 10}" r="5"
+            fill="${dotCol}" stroke="#04070f" stroke-width="1.5"
+            filter="url(#glow1)"/>`;
+                    if (sf) {
+                        h += `<text x="${x + 10}" y="${AX_Y - 10 + 1}" text-anchor="middle" dominant-baseline="middle"
+              font-size="7" fill="#000" font-weight="800">!</text>`;
+                    }
+                }
+            });
+
+            svg.innerHTML = h;
+
+            // Event listeners on nodes
+            svg.querySelectorAll('.m-node').forEach(el => {
+                el.addEventListener('mousedown', e => { e.preventDefault(); startDrag(e, parseInt(el.dataset.id)) });
+                el.addEventListener('click', e => { if (!S.drag) { S.sel = S.sel === parseInt(el.dataset.id) ? null : parseInt(el.dataset.id); renderAll(); } });
+            });
+            svg.querySelectorAll('.m-lbl-bg').forEach(el => {
+                el.addEventListener('click', () => openModal(parseInt(el.dataset.id)));
+            });
+        }
+
+        // ════════════════════════════════════════════════════
+        // DRAG
+        // ════════════════════════════════════════════════════
+        function startDrag(e, id) {
+            S.drag = id;
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        function onDrag(e) {
+            if (!S.drag) return;
+            const svg = document.getElementById('tl-svg');
+            const lbl = document.getElementById('drag-lbl');
+            const rect = svg.getBoundingClientRect();
+            const { s, e: end } = bounds();
+            const totalW = parseFloat(svg.getAttribute('width'));
+            const mx = e.clientX - rect.left;
+            const rawAge = s + ((mx - 40) / (totalW - 80)) * (end - s);
+            const a = Math.max(S.age + 1, Math.min(79, Math.round(rawAge)));
+            const m = S.milestones.find(x => x.id === S.drag);
+            if (m && m.age !== a) {
+                m.age = a;
+                S.proj = compute();
+                renderTL();
+                renderChart();
+                renderPanel();
+            }
+            // drag label
+            lbl.style.display = 'block';
+            lbl.textContent = 'Age ' + a;
+            lbl.style.left = Math.min(e.clientX - rect.left - rect.left + 10, totalW - 60) + 'px';
+        }
+
+        function endDrag() {
+            S.drag = null;
+            document.getElementById('drag-lbl').style.display = 'none';
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', endDrag);
+            renderAll();
+        }
+
+        // ════════════════════════════════════════════════════
+        // CHART (Canvas)
+        // ════════════════════════════════════════════════════
+        function renderChart() {
+            const canvas = document.getElementById('chart');
+            const wrap = document.getElementById('chart-wrap');
+            const dpr = window.devicePixelRatio || 1;
+            const lw = wrap.clientWidth - 28;
+            const lh = wrap.clientHeight - 24;
+            canvas.width = lw * dpr;
+            canvas.height = lh * dpr;
+            canvas.style.width = lw + 'px';
+            canvas.style.height = lh + 'px';
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            const W = lw, H = lh;
+
+            const { pts, mInfo } = S.proj || compute();
+            const { s, e } = bounds();
+            const vis = pts.filter(d => d.age >= s && d.age <= e);
+            if (vis.length < 2) return;
+
+            const maxBal = Math.max(...vis.map(d => d.bal)) * 1.18;
+            const PAD = { l: 72, r: 18, t: 20, b: 38 };
+            const cW = W - PAD.l - PAD.r, cH = H - PAD.t - PAD.b;
+
+            const toX = a => PAD.l + ((a - s) / (e - s)) * cW;
+            const toY = b => PAD.t + cH - (b / maxBal) * cH;
+
+            // store for hover
+            canvas._vis = vis; canvas._toX = toX; canvas._toY = toY;
+            canvas._s = s; canvas._e = e; canvas._PAD = PAD; canvas._cW = cW; canvas._cH = cH; canvas._maxBal = maxBal;
+
+            // bg
+            ctx.fillStyle = '#04070f'; ctx.fillRect(0, 0, W, H);
+
+            // grid
+            ctx.setLineDash([3, 5]);
+            for (let i = 0; i <= 5; i++) {
+                const b = (maxBal / 5) * i;
+                const y = toY(b);
+                ctx.strokeStyle = 'rgba(30,45,82,.5)';
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(PAD.l + cW, y); ctx.stroke();
+                ctx.fillStyle = '#384d72';
+                ctx.font = '10px "IBM Plex Mono"';
+                ctx.textAlign = 'right';
+                ctx.fillText(fmt(b), PAD.l - 7, y + 4);
+            }
+            ctx.setLineDash([]);
+
+            // milestone vertical lines
+            S.milestones.forEach(m => {
+                if (m.age < s || m.age > e) return;
+                const x = toX(m.age);
+                const cat = CATS[m.cat] || CATS.other;
+                const info = mInfo[m.id];
+                const sf = info && info.shortfall > 0;
+
+                ctx.strokeStyle = sf ? '#f59e0b' : cat.color;
+                ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
+                ctx.globalAlpha = .3;
+                ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + cH); ctx.stroke();
+                ctx.setLineDash([]); ctx.globalAlpha = 1;
+
+                // cost label at top
+                ctx.fillStyle = sf ? '#f59e0b' : cat.color;
+                ctx.font = 'bold 9px "IBM Plex Mono"';
+                ctx.textAlign = 'center';
+                ctx.fillText(fmt(m.cost), x, PAD.t + 11);
+
+                // marker on curve
+                if (info) {
+                    const y = toY(info.before);
+                    ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI * 2);
+                    const mc = sf ? '#f59e0b' : '#10b981';
+                    ctx.fillStyle = mc;
+                    ctx.shadowColor = mc; ctx.shadowBlur = 14;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    // shortfall band
+                    if (sf && S.showGaps) {
+                        const sfH = Math.min((info.shortfall / maxBal) * cH, cH - 5);
+                        ctx.fillStyle = sf ? 'rgba(245,158,11,.07)' : 'rgba(16,185,129,.07)';
+                        ctx.fillRect(x - 30, y, 60, sfH);
+                    }
+                }
+            });
+
+            // Fill under curve
+            const gradFill = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
+            gradFill.addColorStop(0, 'rgba(14,165,233,.22)');
+            gradFill.addColorStop(1, 'rgba(14,165,233,.01)');
+            ctx.beginPath();
+            ctx.moveTo(toX(vis[0].age), toY(vis[0].bal));
+            for (let i = 1; i < vis.length; i++) {
+                const p = vis[i - 1], c = vis[i];
+                const cpx = (toX(p.age) + toX(c.age)) / 2;
+                ctx.bezierCurveTo(cpx, toY(p.bal), cpx, toY(c.bal), toX(c.age), toY(c.bal));
+            }
+            ctx.lineTo(toX(vis[vis.length - 1].age), PAD.t + cH);
+            ctx.lineTo(toX(vis[0].age), PAD.t + cH);
+            ctx.closePath();
+            ctx.fillStyle = gradFill; ctx.fill();
+
+            // Curve line
+            ctx.beginPath();
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#0ea5e9'; ctx.shadowBlur = 14;
+            ctx.lineJoin = 'round';
+            ctx.moveTo(toX(vis[0].age), toY(vis[0].bal));
+            for (let i = 1; i < vis.length; i++) {
+                const p = vis[i - 1], c = vis[i];
+                const cpx = (toX(p.age) + toX(c.age)) / 2;
+                ctx.bezierCurveTo(cpx, toY(p.bal), cpx, toY(c.bal), toX(c.age), toY(c.bal));
+            }
+            ctx.stroke(); ctx.shadowBlur = 0;
+
+            // Current age dashed line
+            const cx = toX(S.age);
+            if (cx >= PAD.l && cx <= PAD.l + cW) {
+                ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 1.5;
+                ctx.setLineDash([5, 4]); ctx.globalAlpha = .6;
+                ctx.beginPath(); ctx.moveTo(cx, PAD.t); ctx.lineTo(cx, PAD.t + cH); ctx.stroke();
+                ctx.setLineDash([]); ctx.globalAlpha = 1;
+            }
+
+            // X-axis labels
+            ctx.fillStyle = '#384d72';
+            ctx.font = '10px "IBM Plex Mono"'; ctx.textAlign = 'center';
+            const step = (e - s) <= 8 ? 1 : (e - s) <= 15 ? 2 : 5;
+            for (let a = Math.ceil(s / step) * step; a <= e; a += step) {
+                ctx.fillText(a, toX(a), PAD.t + cH + 20);
+            }
+            ctx.fillText('AGE', PAD.l + cW / 2, H - 4);
+
+            // Legend
+            ctx.strokeStyle = '#0ea5e9'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(W - 130, 10); ctx.lineTo(W - 112, 10); ctx.stroke();
+            ctx.fillStyle = '#8899bb'; ctx.font = '10px "IBM Plex Mono"';
+            ctx.textAlign = 'left'; ctx.fillText('Projected Savings', W - 108, 14);
+        }
+
+        // ════════════════════════════════════════════════════
+        // PANEL
+        // ════════════════════════════════════════════════════
+        function renderPanel() {
+            const { pts, mInfo } = S.proj || compute();
+            const at60 = pts.reduce((p, c) => Math.abs(c.age - 60) < Math.abs(p.age - 60) ? c : p, pts[0]);
+            const at80 = pts[pts.length - 1];
+
+            document.getElementById('s-at60').textContent = at60 ? fmt(at60.bal) : '—';
+            document.getElementById('s-at80').textContent = at80 ? fmt(at80.bal) : '—';
+            document.getElementById('s-rate').textContent = S.rate + '%';
+            document.getElementById('age-badge').textContent = `Age ${S.age} · ${fmt(S.worth)} net worth`;
+
+            const ml = document.getElementById('m-list');
+            ml.innerHTML = S.milestones.slice().sort((a, b) => a.age - b.age).map(m => {
+                const cat = CATS[m.cat] || CATS.other;
+                const info = mInfo[m.id];
+                const sf = info && info.shortfall > 0;
+                const dotCls = !info ? 'warn' : sf ? 'bad' : 'ok';
+                const isSel = S.sel === m.id;
+                return `<div class="m-card${isSel ? ' selected' : ''}" onclick="S.sel=${m.id};renderAll()" data-id="${m.id}">
+      <div class="m-icon" style="background:${cat.color}18;border:1px solid ${cat.color}33">${cat.icon}</div>
+      <div class="m-info">
+        <div class="m-name">${m.name}</div>
+        <div class="m-meta">Age ${m.age} · ${fmt(m.cost)}</div>
+        ${sf ? `<div class="m-warn">⚠ Shortfall ${fmt(info.shortfall)}</div>` : ''}
+      </div>
+      <div class="m-dot ${dotCls}"></div>
+      <button class="edit-btn" onclick="event.stopPropagation();openModal(${m.id})">✎</button>
+    </div>`;
+            }).join('');
+        }
+
+        // ════════════════════════════════════════════════════
+        // MODAL
+        // ════════════════════════════════════════════════════
+        function buildCatGrid(sel) {
+            document.getElementById('cat-grid').innerHTML =
+                Object.entries(CATS).map(([k, v]) =>
+                    `<div class="cat-opt${sel === k ? ' sel' : ''}" onclick="S.editCat='${k}';buildCatGrid('${k}')">
+        <span class="ci">${v.icon}</span><span>${v.label}</span>
+      </div>`
+                ).join('');
+        }
+
+        function openModal(id) {
+            S.editId = id || null;
+            const isNew = !id;
+            const modal = document.getElementById('modal');
+            const sf = document.getElementById('modal-sf');
+            sf.style.display = 'none';
+
+            if (isNew) {
+                S.editCat = 'other';
+                document.getElementById('modal-head').textContent = '＋ Add Milestone';
+                document.getElementById('m-name').value = '';
+                document.getElementById('m-age').value = S.age + 5;
+                document.getElementById('m-cost').value = '';
+                document.getElementById('m-delete').style.display = 'none';
+            } else {
+                const m = S.milestones.find(x => x.id === id);
+                if (!m) return;
+                S.editCat = m.cat;
+                const cat = CATS[m.cat] || CATS.other;
+                document.getElementById('modal-head').innerHTML = `${cat.icon} Edit Milestone`;
+                document.getElementById('m-name').value = m.name;
+                document.getElementById('m-age').value = m.age;
+                document.getElementById('m-cost').value = m.cost;
+                document.getElementById('m-delete').style.display = 'block';
+
+                // Show shortfall info
+                if (S.proj) {
+                    const info = S.proj.mInfo[id];
+                    if (info && info.shortfall > 0) {
+                        sf.style.display = 'block';
+                        sf.innerHTML = `⚠ Projected shortfall of <strong>${fmt(info.shortfall)}</strong> at age ${m.age}<br>
+          <span style="opacity:.7">Increase monthly savings by ₹${Math.ceil(info.shortfall / ((m.age - S.age) * 12)).toLocaleString('en-IN')}/mo to cover.</span>`;
+                    }
+                }
+            }
+            buildCatGrid(S.editCat);
+            updateCostPreview();
+            modal.classList.add('open');
+        }
+
+        function updateCostPreview() {
+            const v = parseFloat(document.getElementById('m-cost').value) || 0;
+            document.getElementById('cost-preview').textContent = v > 0 ? '= ' + fmt(v) : '';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            S.editId = null;
+        }
+
+        function saveModal() {
+            const name = document.getElementById('m-name').value.trim();
+            const age = parseInt(document.getElementById('m-age').value);
+            const cost = parseFloat(document.getElementById('m-cost').value);
+            if (!name || isNaN(age) || isNaN(cost)) {
+                document.getElementById('m-name').style.borderColor = !name ? 'var(--red)' : '';
+                return;
+            }
+            if (S.editId) {
+                const m = S.milestones.find(x => x.id === S.editId);
+                Object.assign(m, { name, age, cost, cat: S.editCat });
+            } else {
+                S.milestones.push({ id: S.nid++, name, age, cost, cat: S.editCat });
+            }
+            closeModal(); S.proj = compute(); renderAll();
+        }
+
+        function delModal() {
+            if (!S.editId) return;
+            S.milestones = S.milestones.filter(m => m.id !== S.editId);
+            closeModal(); S.proj = compute(); renderAll();
+        }
+
+        // ════════════════════════════════════════════════════
+        // CHART HOVER
+        // ════════════════════════════════════════════════════
+        function setupHover() {
+            const canvas = document.getElementById('chart');
+            const tip = document.getElementById('tooltip');
+
+            canvas.addEventListener('mousemove', e => {
+                if (!canvas._vis) return;
+                const rect = canvas.getBoundingClientRect();
+                const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+                const { _PAD, _cW, _cH, _s, _e, _vis } = canvas;
+                const { l, r, t, b } = _PAD;
+                if (mx < l || mx > l + _cW || my < t || my > t + _cH) { tip.style.display = 'none'; return; }
+                const age = _s + ((mx - l) / _cW) * (_e - _s);
+                const near = _vis.reduce((p, c) => Math.abs(c.age - age) < Math.abs(p.age - age) ? c : p);
+                const nm = S.milestones.find(m => Math.abs(m.age - near.age) < .4);
+                const cat = nm ? (CATS[nm.cat] || CATS.other) : null;
+                tip.style.display = 'block';
+                tip.style.left = (mx + 14) + 'px';
+                tip.style.top = (my - 14) + 'px';
+                tip.innerHTML = `<span style="color:var(--text-dim)">Age</span> <strong>${near.age.toFixed(1)}</strong><br>
+      <span style="color:var(--teal);font-size:13px">${fmt(near.bal)}</span>${nm ? `<br><span style="color:${cat.color}">${cat.icon} ${nm.name}</span>` : ''}`;
+            });
+            canvas.addEventListener('mouseleave', () => tip.style.display = 'none');
+        }
+
+        // ════════════════════════════════════════════════════
+        // CONTROLS
+        // ════════════════════════════════════════════════════
+        function setupControls() {
+            function updateSliderStyle(el) {
+                const min = el.min || 0;
+                const max = el.max || 100;
+                const percent = ((el.value - min) / (max - min)) * 100;
+                el.style.setProperty('--percent', percent + '%');
+            }
+
+            const rm = document.getElementById('r-monthly');
+            const dm = document.getElementById('d-monthly');
+            rm.addEventListener('input', () => {
+                updateSliderStyle(rm);
+                S.monthly = parseInt(rm.value);
+                dm.textContent = '₹' + S.monthly.toLocaleString('en-IN');
+                S.proj = compute(); renderChart(); renderPanel();
+            });
+            updateSliderStyle(rm); // initialize
+
+            const rr = document.getElementById('r-rate');
+            const dr = document.getElementById('d-rate');
+            rr.addEventListener('input', () => {
+                updateSliderStyle(rr);
+                S.rate = parseFloat(rr.value);
+                dr.textContent = S.rate + '%';
+                S.proj = compute(); renderChart(); renderPanel();
+            });
+            updateSliderStyle(rr); // initialize
+
+            document.getElementById('i-worth').addEventListener('change', e => {
+                S.worth = parseFloat(e.target.value) || 0;
+                S.proj = compute(); renderAll();
+            });
+
+            document.getElementById('i-age').addEventListener('change', e => {
+                S.age = Math.max(16, Math.min(65, parseInt(e.target.value) || 28));
+                e.target.value = S.age;
+                S.proj = compute(); renderAll();
+            });
+
+            document.getElementById('t-inflation').addEventListener('change', e => {
+                S.inflation = e.target.checked;
+                S.proj = compute(); renderChart(); renderPanel();
+            });
+
+            document.getElementById('t-gaps').addEventListener('change', e => {
+                S.showGaps = e.target.checked;
+                renderChart();
+            });
+
+            document.querySelectorAll('.zoom-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    S.zoom = btn.dataset.z;
+                    S.proj = compute(); renderAll();
+                });
+            });
+
+            document.getElementById('add-btn').addEventListener('click', () => openModal(null));
+
+            const svg = document.getElementById('tl-svg');
+            svg.addEventListener('dblclick', (e) => {
+                const rect = svg.getBoundingClientRect();
+                const mx = e.clientX - rect.left;
+                const { s, e: end } = bounds();
+                const totalW = parseFloat(svg.getAttribute('width')) || svg.clientWidth;
+                const rawAge = s + ((mx - 40) / (totalW - 80)) * (end - s);
+                const a = Math.max(S.age + 1, Math.min(79, Math.round(rawAge)));
+
+                openModal(null);
+                document.getElementById('m-age').value = a;
+            });
+
+            document.getElementById('m-cancel').addEventListener('click', closeModal);
+            document.getElementById('m-save').addEventListener('click', saveModal);
+            document.getElementById('m-delete').addEventListener('click', delModal);
+            document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+            document.getElementById('m-cost').addEventListener('input', updateCostPreview);
+
+            // Keyboard shortcut: Escape to close modal
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        }
+
+        // ════════════════════════════════════════════════════
+        // MAIN
+        // ════════════════════════════════════════════════════
+        function renderAll() {
+            S.proj = S.proj || compute();
+            renderTL();
+            renderChart();
+            renderPanel();
+        }
+
+        (function init() {
+            const authView = document.getElementById('auth-view');
+            const appView = document.getElementById('app-view');
+            const loginBox = document.getElementById('login-box');
+            const signupBox = document.getElementById('signup-box');
+
+            document.getElementById('go-signup').addEventListener('click', (e) => {
+                e.preventDefault();
+                loginBox.style.display = 'none';
+                signupBox.style.display = 'block';
+            });
+
+            document.getElementById('go-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                signupBox.style.display = 'none';
+                loginBox.style.display = 'block';
+            });
+
+            const handleAuth = (btn) => {
+                btn.style.opacity = '0.7';
+                btn.textContent = 'Loading...';
+                setTimeout(() => {
+                    authView.classList.add('hidden');
+                    appView.classList.add('active');
+                    void appView.offsetWidth; // force reflow
+                    appView.style.opacity = '1';
+                    renderAll();
+                }, 800);
+            };
+
+            document.getElementById('login-btn').addEventListener('click', function() { handleAuth(this); });
+            document.getElementById('signup-btn').addEventListener('click', function() { handleAuth(this); });
+
+            setupControls();
+            setupHover();
+            S.proj = compute();
+            renderAll();
+            let rt;
+            window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderAll, 80); });
+        })();
+    </script>
+</body>
+
+</html>
